@@ -52,9 +52,6 @@
   a precharge latency of 3 cycles (24ns). Pipelined column accesses that transfer
   16 bits may issue at the rate of one per cycle(8ns), yielding a peak transfer rate
   of 250MB/s. (8ns for 16 bits or 2 bytes. In 1s we transfer 2/8ns bytes => 250MB/s)
-  \[
-  e^{i} = -1
-   \]
 + However, it is difficult to acheive this rate on non-sequential access patterns for
   several reasons. A bank cannot be accessed during the precharge/activate latency, a
   single cycle of high impedance is required on the datat pins when switching between read
@@ -72,17 +69,71 @@
 + Memory access scheduling is the process of ordering the DRAM operations (bank precharge,
   row activation, and column access) necessary to complete the set of currently pending memory
   references.
-+ 
-[[file:./img/memory_scheduling/Scheduling_precharge.png]]
++ Given a set of pending memory references, a memory access schduler may choose one or more
+  row, column, or precharge operation each cycle, subject to resource constraints, to advance
+  one or more of the pending references. The simplest and the most common, scheduling algorithm
+  only considers the oldest pending reference, so that references are satisfied in the order
+  that they arrive.
++ If the DRAM is not ready for the operation required by the oldest pending reference, or
+  if that operation would leave available resources idle, it makes sense to consider operations
+  for other pending references.
++ Figure 4 shows the structure of the of a more sophisticated access scheduler.
+  [[file:./img/memory_scheduling/memory-access-sched-arch.png]]
++ As memory reference arrive, they are allocated storage space while they await service
+  from the memory access scheduler. In the figure, references are initially sorted by DRAM bank.
+  Each pending reference is represented by the six fields: valid (V), load/store(L/S), address
+  (Row and Col), data, and whatever additional state is necessary for the scheduling algoeithm.
++ Examples of state that can be accessed and modified byt he scheduler are the age of the reference
+  and whether or not that reference targets the currently active row.
++ As shown in Fig 4, each bank has a precharge manager and a row arbiter. The precharge manager
+  simply decides when its associated bank should be precharged. Similarly, the row arbiter for each
+  bank decides which row, if anym should be activated when that bank is idle.
++ A single column arbiter is shared by all the banks. The column arbiter grants the shared
+  data line resources to a single column access out of all the pending references to all of they
+  banks.
++ Finally, the precharge manager, row arbiter and column arbiter send theit selected operations to
+  a single address arbiter which grants the shared address resources to one or more of those
+  operations.
++ The precharge managers, row arbiters, and column arbiter can use several different policies
+   to select DRAM operations, as enumerated in Table 1. The combination of policies used by these
+   units, along with the address arbiter's policy, determine the memory access scheduling algorithm.
+  [[ file:./img/memory_scheduling/Scheduling_precharge.png]]
 ** Experimental Setup
 *** Stream Processor Architecture
 *** Benchmarks
       
 ** Experimental Results
+   + 
 *** First-ready Scheduling
+    + 
 *** Aggressive Reordering
       
 ** Related Work
 
 ** Conclusion
-    
+   + Memory bandwidth is becoming the limiting factor in acheiving higher performance,
+     especially in media processing systems. Processor performance improvements will continue
+     to outpace increases in memory bandwidth, so techniques are needed to maximize the sustained
+     memory bandwidth.
+   + To maximize the peak supplied data bandwidth, modern DRAM components allow pipelined
+     accesses to a three-dimensional memory structure. Memory access scheduling  greatly
+     increases the bandwidth utilization of these DRAMs by buffering memory references and choosing to
+     complete then in an order that both maximizes the number if column accesses per row access,
+     resulting in improved system performance.
+   + A comparison of alternative scheduling algorithms shows that on most benchmarks it is
+     advantageneous to employ a closed page scheduling policy in which banks are precharged
+     as soon as the last column reference to an active row is complete. This is in part due
+     to the ability of the DRAM to combine the bank precharge request with the final column access.
+   + There is little difference in performance between scheduling algorithms that give preference
+     to row accesses over column accesses, except that the col/closed algorithm can somtimes
+     close pages too soon, somewhat degrading performance. Finally, scheduling loads ahead
+     of stores improves performance for latency sensitive applications.
+   + Contemporary cache organisations waste memory bandwidth in order to reduce the memory
+     latency seen by the processors. As memory bandwidth becomes more precious this will no longer
+     be a practical solution to reducing memory latency.
+   + Media processing has already encountered this phenomenon, because streaming media data
+     types do not cache well and require careful bandwidth management. As cache organisations evolve
+     to be more conscious of memory bandwidth, techniques like memory access scheduling will
+     be required to sustain a significat fraction of the available data bandwidth. Memory access
+     scheduling is, therefore, an important step towards maximizing the utilization of the
+     increasingly scarce memory bandwidth resource. 
