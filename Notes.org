@@ -1,0 +1,88 @@
+#+STARTUP: latexpreview
+#+OPTIONS: latex:t
+* Memory Access Scheduling
+
+
+** Abstact
+    The bandwidth and latency of a memory system are strongly dependent on the
+    manner in which accesses interact with the "#-D" structure of banks, rows,
+    and columns characteristic of contemporary DRAM chips. There is nearly an
+    order of magnitute difference in bandwidth between successive references
+     to different rows within a bank. This paper introduces memory access
+     scheduling, a technique that improves the performance of a memory system
+     by reordering memory references to exploit locality within the 3-D memory
+     structure. Conservative reordering, in which the first ready reference
+     in a sequence id performed, improves bandwidth by 40% for traces from
+     five media benchmarks. Aggressive reordering, in which operations are scheduled
+     optimize memory bandwidth, improves bandwidth by 93% fro the same set of
+     applications. Memory access scheduling is particularly important for media
+     processorrs where it enables the processor to make the most efficient use
+     of scarce memory bandwidth.
+
+** Introduction
+   + Modern computers increasingly limited by memory performance. Processor perf. increase
+     60% per year, bandwidth of memory chip increase only 10%.
+   + Modern DRAM components allow pipelining of memory accesses, provide several independent
+     memory banks, and cache the most recentky accessed row of each bank. While these features
+     increase the peak supplied bandwidth, they also make the performance of the DRAM highly
+     dependent on the access pattern.
+   + Modern DRAMs are not truly random access devices(equal access time to all locations).
+     Sequential accesses to different rows within one bank have high latency and cannot be
+     pipelined, while accesses to different banks or different words within a single row have
+     low latency and can be pipelined.
+   + The three-dimensional nature of modern memory devices makes it advantageneous to reorder
+     memory operations to exloit the non-uniform access time of the DRAM.
+   + We introduce /italic memory access scheduling/ in which DRAM operations are
+     scheduled, possibly completing memory references out of order, to optimize memory
+     system performance. 
+** Modern DRAM architecture
+   
++ DRAMS are three-dimensional memories with the dimensions of bank, row, and
+  column. Each bank operates independently of the other banks and contains an
+  array if memory cells that are accessed an entire row at a time. When a row of
+  this memory array is accessed (/i row activation/) the entire row of the
+  memory array is transferred inton the bank's row buffer.
++ While a row is active in the row buffer, any number of reads or writes (column
+  accesses) may be performed, typically with a throughput of one per cycle. After
+  completing the available column accesses, the cached row must be written back to the
+  memory array by an explicit operations (/i bank prcharge/) which prepares the bank
+  for a subsequent row activation.
++ For example, suppose a typical SDRAM includes four internal memory banks, each
+  composed of 4096 rows and 512 columns. This SDRAM may be operated at 125MHz, with
+  a precharge latency of 3 cycles (24ns). Pipelined column accesses that transfer
+  16 bits may issue at the rate of one per cycle(8ns), yielding a peak transfer rate
+  of 250MB/s. (8ns for 16 bits or 2 bytes. In 1s we transfer 2/8ns bytes => 250MB/s)
+  \[
+  e^{i} = -1
+   \]
++ However, it is difficult to acheive this rate on non-sequential access patterns for
+  several reasons. A bank cannot be accessed during the precharge/activate latency, a
+  single cycle of high impedance is required on the datat pins when switching between read
+  and write column accesses, and a single set of address line is shared by all the DRAM
+  operations(bank precharge, row activation, and column access).
++ A memory access scheduler must generate a schedule that conforms to the timing and resourse
+  constraints of these modern DRAMs. Each DRAM operation makes different demands on the
+  three DRAM resources: the internal banks, a sinfle set of address lines, and a single set
+  set of data lines.
++ Each DRAM bank has two stable states: /b IDLE/ and /b ACTIVE/. In the IDLE state, the DRAM
+  is precharged and ready for a row access. It will remain in this state until a row activate
+  operation is issued to the bank. 
+   
+** Memory Access Scheduling
++ Memory access scheduling is the process of ordering the DRAM operations (bank precharge,
+  row activation, and column access) necessary to complete the set of currently pending memory
+  references.
++ 
+[[file:./img/memory_scheduling/Scheduling_precharge.png]]
+** Experimental Setup
+*** Stream Processor Architecture
+*** Benchmarks
+      
+** Experimental Results
+*** First-ready Scheduling
+*** Aggressive Reordering
+      
+** Related Work
+
+** Conclusion
+    
