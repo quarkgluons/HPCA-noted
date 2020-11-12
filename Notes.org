@@ -97,7 +97,7 @@
 + The precharge managers, row arbiters, and column arbiter can use several different policies
    to select DRAM operations, as enumerated in Table 1. The combination of policies used by these
    units, along with the address arbiter's policy, determine the memory access scheduling algorithm.
-  [[ file:./img/memory_scheduling/Scheduling_precharge.png]]
+  [[file:./img/memory_scheduling/Scheduling_precharge.png]]
 ** Experimental Setup
 *** Stream Processor Architecture
 *** Benchmarks
