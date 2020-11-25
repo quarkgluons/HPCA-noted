@@ -5,7 +5,7 @@
 
 ** Abstact
     The bandwidth and latency of a memory system are strongly dependent on the
-    manner in which accesses interact with the "#-D" structure of banks, rows,
+    manner in which accesses interact with the "3-D" structure of banks, rows,
     and columns characteristic of contemporary DRAM chips. There is nearly an
     order of magnitute difference in bandwidth between successive references
      to different rows within a bank. This paper introduces memory access
